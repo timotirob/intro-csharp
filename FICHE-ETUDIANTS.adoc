@@ -1,0 +1,505 @@
+= Mini-GLPI — Corrections des séances 1 et 2
+:toc: left
+:toclevels: 3
+:icons: font
+:source-highlighter: highlight.js
+:experimental:
+:sectanchors:
+
+Ce dépôt contient la *correction complète* des TP des séances 1 et 2 de
+l'introduction C# (Bloc 2), tronc commun **et** paliers Défi.
+
+Il vous servira à deux choses : réviser avant l'évaluation d'ouverture, et
+disposer d'un point de départ propre pour la séance 3.
+
+[IMPORTANT]
+====
+Ce dépôt est une correction, pas un modèle à recopier. Comparez-le à votre
+propre code : les écarts sont exactement ce sur quoi vous devez travailler.
+====
+
+== 1. Comment cloner ?
+
+=== Prérequis
+
+[cols="1,3"]
+|===
+|Outil |Version
+
+|JetBrains Rider
+|celle installée en salle
+
+|SDK .NET
+|*10.0* — le projet cible `net10.0`
+|===
+
+[WARNING]
+====
+Rider ne fournit pas de SDK : il utilise celui installé sur la machine. Si
+Rider ouvre la solution mais refuse de compiler avec un message du type
+`The current .NET SDK does not support targeting net10.0`, c'est que le poste
+a une version antérieure. Signalez-le, ne modifiez pas le `.csproj` de votre côté.
+====
+
+=== En ligne de commande
+
+[source,bash]
+----
+git clone https://github.com/timotirob/intro-csharp.git
+----
+
+Vous obtenez un dossier `intro-csharp` (et non `Seance2` : le dépôt couvre
+toute l'intro, la solution à l'intérieur porte encore le nom de la séance 2).
+
+=== Directement depuis Rider
+
+. Écran d'accueil → menu:Get from VCS[]
+. Coller l'URL `https://github.com/timotirob/intro-csharp.git`
+. Choisir le dossier de destination → btn:[Clone]
+
+=== Lancer le projet
+
+. Ouvrir `Seance2.sln`
+. Attendre la fin du chargement (Rider restaure tout seul — il n'y a aucune
+  dépendance externe, seulement le SDK)
+. btn:[Run] (kbd:[Maj+F10])
+
+Vous devez voir :
+
+----
+Projet MiniGlpi -- pret.
+
+==================================================
+ MINI-GLPI -- corrections
+==================================================
+  1 - Seance 1 : premiers pas, syntaxe et objets
+  2 - Seance 2 : programmation orientee objet
+  0 - Quitter
+Votre choix :
+----
+
+[TIP]
+====
+Les dossiers `bin/` et `obj/` ne sont pas dans le dépôt : c'est normal, Rider
+les régénère à la première compilation. Idem pour `.idea/`, qui contiendrait
+la configuration locale de la machine de l'enseignant.
+====
+
+== 2. Ce que contient le projet
+
+=== Arborescence
+
+----
+intro-csharp/
+├── README.md                      notes techniques
+├── FICHE-ETUDIANTS.adoc           ce document
+├── Seance2.sln
+└── Seance2/
+    ├── Program.cs                 class Program + static void Main + menu général
+    ├── Seance1/                   namespace MiniGlpi.Seance1
+    │   ├── Materiel.cs
+    │   ├── Imprimante.cs
+    │   └── ProgrammeSeance1.cs    Exercice1() … Exercice6()
+    └── Seance2Poo/                namespace MiniGlpi.Seance2
+        ├── Materiel.cs            abstract, propriétés
+        ├── Ordinateur.cs
+        ├── Imprimante.cs
+        ├── Routeur.cs             bonus
+        ├── Parc.cs
+        └── ProgrammeSeance2.cs    Exercice1() … Exercice6()
+----
+
+=== Pourquoi deux dossiers, et deux fois les mêmes classes ?
+
+Les deux séances définissent chacune une classe `Materiel` et une classe
+`Imprimante` — même nom, contenu différent, parce que la séance 2 *refond*
+celles de la séance 1 :
+
+[cols="1,2,2",options="header"]
+|===
+|
+|Séance 1 (`MiniGlpi.Seance1`)
+|Séance 2 (`MiniGlpi.Seance2`)
+
+|Données
+|attributs `private` en camelCase
+|propriétés `{ get; private set; }` en PascalCase
+
+|Lecture depuis l'extérieur
+|méthode `ObtenirAge()` écrite à la main
+|`get` public de la propriété
+
+|Familles de matériels
+|aucune — `Imprimante` recopie `modele` et `numeroSerie`
+|héritage — `Imprimante : Materiel`
+
+|Instanciable
+|oui
+|non, `Materiel` est `abstract`
+
+|Plusieurs matériels
+|cinq variables et des `if` en série
+|`List<Materiel>` et `foreach`
+|===
+
+Les deux versions sont conservées volontairement : l'écart entre les deux *est*
+le contenu de la séance 2. Les deux `namespace` distincts évitent la collision
+de noms — c'est précisément à cela qu'ils servent.
+
+[NOTE]
+====
+`Seance1/Imprimante.cs` recopie `modele` et `numeroSerie` alors que
+`Seance2Poo/Imprimante.cs` les hérite. Ouvrez les deux côte à côte : c'est la
+démonstration la plus courte de l'intérêt de l'héritage.
+====
+
+=== Correspondance exercices → code
+
+.Séance 1
+[cols="1,3,2",options="header"]
+|===
+|Exercice |Objet |Où regarder
+
+|1
+|Mise en route, squelette `class Program` + `Main`
+|`Program.cs`, `ProgrammeSeance1.Exercice1()`
+
+|2
+|Variables typées, interpolation, valeur résiduelle
+|`Exercice2()`
+
+|3
+|Conditions, `for`, `while`, saisie clavier
+|`Exercice3()`
+
+|4
+|La classe `Materiel`, `AugmenterAge()`, `Diagnostic()`
+|`Seance1/Materiel.cs`, `Exercice4()`
+
+|5 (défi)
+|`Imprimante`, compteur de pages, seuil de maintenance
+|`Seance1/Imprimante.cs`, `Exercice5()`
+
+|6 (défi)
+|Mini-inventaire sans liste, le plus ancien
+|`Exercice6()`
+|===
+
+.Séance 2
+[cols="1,3,2",options="header"]
+|===
+|Exercice |Objet |Où regarder
+
+|1
+|Propriétés `{ get; private set; }`
+|`Seance2Poo/Materiel.cs`, `Exercice1()`
+
+|2
+|Héritage, `: base(...)`, `virtual` / `override`
+|`Ordinateur.cs`, `Imprimante.cs`, `Exercice2()`
+
+|3
+|`List<Materiel>`, `foreach`, polymorphisme
+|`Exercice3()`
+
+|4
+|La classe `Parc` (composition)
+|`Parc.cs`, `Exercice4()`
+
+|5 (défi)
+|Classe `abstract`, `NiveauPriorite()`
+|`Materiel.cs`, `Exercice5()`
+
+|6 (défi)
+|`IReadOnlyList<T>`, `AsReadOnly()`
+|`Parc.ObtenirTous()`, `Exercice6()`
+|===
+
+=== Le bonus : la classe Routeur
+
+`Seance2Poo/Routeur.cs` ne figure dans aucun énoncé. Elle a été ajoutée *après*
+`Parc` et la boucle d'affichage, pour vérifier l'affirmation du cours : ajouter
+une famille de matériel ne demande de modifier ni `Parc`, ni la boucle
+`foreach`. Aucune de ces deux parties n'a été touchée. C'est un argument de
+conception valorisé à l'épreuve.
+
+== 3. Comment réviser ?
+
+=== Parcours conseillé, en quatre temps
+
+==== Temps 1 — exécuter et observer (15 min)
+
+Lancez le programme, choisissez la séance 2 puis `T` pour enchaîner les six
+exercices. Lisez la sortie *avant* de lire le code : demandez-vous, à chaque
+bloc, quel mécanisme produit ce résultat.
+
+Le moment à ne pas manquer, dans l'exercice 3 :
+
+----
+ - Dell Latitude (n° SN-01), 3 ans -- OS : Windows 11
+ - HP LaserJet (n° SN-99), 2 ans -- couleur
+ - Cisco RV340 (n° SN-77), 5 ans -- 4 ports
+----
+
+Trois lignes de formats différents, produites par *un seul* appel
+`m.Decrire()` dans *une seule* boucle. C'est le polymorphisme, et c'est la
+question la plus fréquente de l'épreuve sur ce chapitre.
+
+==== Temps 2 — provoquer les erreurs de compilation (20 min)
+
+C'est l'exercice le plus rentable de tous. Trois lignes sont volontairement en
+commentaire dans `Seance2Poo/ProgrammeSeance2.cs`. Décommentez-les *une par
+une*, compilez, lisez le message, remettez le commentaire.
+
+[cols="1,2,2",options="header"]
+|===
+|Exercice |Ligne à décommenter |Erreur attendue
+
+|S2 exo 1.4
+|`m.Modele = "HP EliteBook";`
+|`CS0272` — l'accesseur `set` n'est pas accessible
+
+|S2 exo 5.3
+|`new Materiel("???", "SN-00", 1)`
+|`CS0144` — impossible d'instancier une classe `abstract`
+
+|S2 exo 6.3
+|`parc.ObtenirTous().Add(...)`
+|`CS1061` — `IReadOnlyList<Materiel>` ne contient pas `Add`
+|===
+
+Savoir *reconnaître* ces trois messages vaut mieux que savoir réciter la règle :
+le jour où vous les verrez dans votre code, vous saurez immédiatement quoi
+corriger.
+
+==== Temps 3 — reproduire sans le modèle (45 min)
+
+La lecture donne une illusion de maîtrise. Fermez le dépôt et réécrivez de
+mémoire, dans un projet vierge :
+
+. `Materiel` avec trois propriétés et un `Decrire()` `virtual` ;
+. `Ordinateur : Materiel` avec `: base(...)` et un `override` ;
+. une `List<Materiel>`, deux éléments, une boucle `foreach`.
+
+Puis comparez. Les points où vous avez hésité sont vos points faibles réels —
+pas ceux que vous croyiez avoir.
+
+==== Temps 4 — les pièges à relire la veille (10 min)
+
+[cols="2,3",options="header"]
+|===
+|Piège |À retenir
+
+|`virtual` / `override`
+|`virtual` côté mère *pour autoriser*, `override` côté fille *pour redéfinir*.
+Les deux sont obligatoires. C'est l'erreur n°1 en venant de PHP.
+
+|`virtual` vs `abstract`
+|`virtual` propose une version par défaut, `abstract` impose à la fille de
+l'écrire. Une classe avec une méthode `abstract` est elle-même `abstract`.
+
+|`==` sur les chaînes
+|En C# `==` compare le contenu. *En Java c'est un piège* : il faut
+`.equals()`, sinon on compare des adresses mémoire.
+
+|`.Count` vs `.size()`
+|C# : `.Count`, une *propriété*, sans parenthèses. Java : `.size()`, une
+méthode. Voir `Parc.NombreTotal()`.
+
+|Division entière
+|`total / Count` entre deux `int` donne un `int` : `17 / 5` vaut `3`. Il faut
+`(double) total / Count`. Voir `Parc.AgeMoyen()`. Erreur *silencieuse* : le
+code compile et le résultat est faux.
+
+|Le `$` du C#
+|Les variables n'ont pas de `$`. Le `$` préfixe la *chaîne* : `$"Bonjour {nom}"`.
+
+|Ordre des `else if`
+|Trois `if` indépendants ne valent pas un `if / else if / else`. Voir le
+diagnostic par âge dans `ProgrammeSeance1.Exercice3()`.
+
+|Boucle infinie
+|Dans un `while`, vérifiez que quelque chose fait progresser vers la sortie
+(la ligne `stock--`).
+
+|PascalCase
+|Tout ce qui est public s'écrit avec une majuscule initiale. Les correcteurs
+y sont attentifs.
+|===
+
+=== Pour l'évaluation d'ouverture
+
+Elle porte sur la séance précédente et se fait *sur papier*. Entraînez-vous
+donc à écrire du C# à la main, sans l'autocomplétion de Rider : c'est un
+exercice différent, et bien plus difficile qu'il n'y paraît.
+
+Les sujets d'étude de cas sont souvent en Java. Les encadrés « Passerelle Java »
+des supports signalent les rares écarts — les trois à connaître absolument sont
+`String`/`boolean`, `.equals()` et `extends`/`super`.
+
+== 4. D'où repartir pour la séance 3 ?
+
+La séance 3 traite l'algorithmique de parcours, la composition (les tickets) et
+les exceptions. Son énoncé est explicite : *ne repartez pas de zéro, enrichissez
+ce que vous avez déjà.*
+
+=== Quelles classes reprendre
+
+[cols="1,3",options="header"]
+|===
+|Point de départ |Pourquoi
+
+|`Seance2Poo/Materiel.cs` et `Seance2Poo/Parc.cs`
+|Ce sont *les* classes de la séance 3. Ses trois propriétés et son
+constructeur à trois paramètres correspondent exactement à l'énoncé.
+
+|`Seance1/`
+|❌ Ne l'utilisez pas. Ce dossier est une archive pédagogique, conservée pour
+la comparaison. Il n'est pas le point de départ.
+|===
+
+=== Ce qui est déjà écrit — et ce qui reste à faire
+
+L'exercice 1 de la séance 3 demande quatre méthodes dans `Parc`. *Deux
+existent déjà* :
+
+[cols="2,1,3",options="header"]
+|===
+|Méthode demandée |État |Détail
+
+|`CompterAnciens()`
+|✅ déjà là
+|C'est `Parc.CompterARenouveler()`, au nom près : même logique, `Age > 5`.
+Renommez-la si vous préférez coller à l'énoncé.
+
+|`AgeMoyen()`
+|✅ déjà là
+|Dans `Parc.cs`, avec le `(double)` qui évite la division entière et le
+traitement de la liste vide.
+
+|`RechercherParNumero(string)`
+|▶ à écrire
+|Schéma : `return` dans la boucle dès qu'on trouve, `return null` *après* la
+boucle. Voir l'avertissement ci-dessous.
+
+|`LePlusAncien()`
+|▶ à écrire
+|Vous l'avez déjà fait à la main en séance 1 (exercice 6, défi) avec cinq
+variables. Il s'agit de la même logique, avec une boucle : traiter la liste
+vide, partir de `lesMateriels[0]`, comparer aux suivants.
+|===
+
+[WARNING]
+.Un piège propre à ce projet, que l'énoncé ne peut pas anticiper
+====
+L'énoncé écrit `public Materiel RechercherParNumero(string numero)` avec un
+`return null`. Ce projet active `<Nullable>enable</Nullable>` : cette signature
+produit l'avertissement
+
+----
+warning CS8603: Existence possible d'un retour de référence null.
+----
+
+La correction tient à un caractère — déclarer que le retour *peut* être nul :
+
+[source,csharp]
+----
+public Materiel? RechercherParNumero(string numero)   // <1>
+----
+<1> Le `?` après le type. Vérifié : l'avertissement disparaît.
+
+Même chose pour `LePlusAncien()`, qui retourne `null` sur un parc vide. Ce n'est
+pas une erreur de l'énoncé : c'est une option de projet plus stricte, qui vous
+force à dire explicitement ce qui peut être nul. C'est une bonne habitude.
+====
+
+=== Les quatre autres exercices
+
+[cols="1,3",options="header"]
+|===
+|Exercice |Point de départ
+
+|2 — `Ticket`
+|Classe entièrement nouvelle. Créez un dossier `Seance3/`, en suivant la même
+organisation que les deux autres.
+
+|3 — Composition
+|Ajoutez `private List<Ticket> lesTickets;` à `Seance2Poo/Materiel.cs`. *Le
+point critique* : la ligne `lesTickets = new List<Ticket>();` va dans le
+constructeur. Déclarer une liste ne la crée pas — sans cette ligne, le code
+compile puis s'arrête sur une `NullReferenceException` au premier ticket.
+
+|4 — Exceptions
+|La validation va dans les constructeurs de `Ticket` et `Materiel`, le
+`try/catch` dans `Main`. Jamais l'inverse.
+
+|5 — Statistiques
+|`Parc.AfficherStatistiques()` réutilise `NombreTotal()`, `AgeMoyen()`,
+`CompterARenouveler()` et votre nouveau `LePlusAncien()`. Seul le total des
+tickets ouverts demande un parcours dans un parcours.
+|===
+
+[NOTE]
+.Deux détails de structure à connaître avant de commencer
+====
+* Le constructeur de `Materiel` est `protected`, pas `public` — parce que la
+classe est `abstract` et que seules les filles l'appellent via `: base(...)`.
+La validation de l'exercice 4 s'y place quand même, et protège d'un coup
+`Ordinateur`, `Imprimante` et `Routeur`.
+* La liste `lesMateriels` est `private`, et `ObtenirTous()` la renvoie en
+lecture seule. Le `TrierParAge()` de l'exercice 6 (défi) doit donc être
+*écrit dans `Parc`* : depuis l'extérieur, la liste n'est pas modifiable —
+c'est exactement la protection mise en place à l'exercice 6 de la séance 2.
+====
+
+=== Une reprise propre, en trois commandes
+
+[source,bash]
+----
+git pull                              # récupérer d'éventuelles mises à jour
+git switch -c seance3                 # travailler sur votre propre branche
+----
+
+Travailler sur une branche vous permet de modifier `Materiel` et `Parc` sans
+perdre l'état « fin de séance 2 » : il reste accessible sur `main`. Pour
+comparer à tout moment votre version à celle d'origine :
+
+[source,bash]
+----
+git diff main -- Seance2/Seance2Poo/Materiel.cs
+----
+
+=== Pour l'exercice 7 (défi) : le menu interactif
+
+Ne partez pas de zéro : `Program.cs` et les méthodes `Lancer()` des deux
+séances contiennent déjà la structure attendue — une boucle `while`, un
+`switch` sur la saisie, un cas de sortie.
+
+Un seul point à changer, et il est au cœur de l'exercice : la méthode
+`LireEntier()` de `ProgrammeSeance1` utilise `int.Parse`, qui plante sur une
+saisie non numérique. La séance 3 la remplace par `int.TryParse`. Comparez les
+deux versions — c'est la différence entre un programme qui « marche » et un
+programme robuste.
+
+== Annexe — En cas de problème
+
+[cols="2,3",options="header"]
+|===
+|Symptôme |Cause probable
+
+|Rider n'affiche aucun projet dans la solution
+|Chargement encore en cours, ou SDK .NET 10 absent. Vérifiez la barre d'état.
+
+|`The current .NET SDK does not support targeting net10.0`
+|Le poste a un SDK antérieur. Signalez-le, ne modifiez pas le `.csproj`.
+
+|La console affiche `MatÃ©riel` ou `Matriel`
+|Problème d'encodage. `Program.cs` force `Console.OutputEncoding = Encoding.UTF8` ;
+si vous partez d'un projet neuf, pensez à cette ligne.
+
+|`NullReferenceException` au premier ticket ajouté (séance 3)
+|La ligne `lesTickets = new List<Ticket>();` manque dans le constructeur.
+
+|Le programme se ferme aussitôt après le lancement
+|Vous êtes en `Run` sans console interactive, ou vous avez tapé `0`.
+|===
