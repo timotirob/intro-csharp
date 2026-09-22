@@ -1,0 +1,20 @@
+## Build .NET
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+
+## Rider / JetBrains
+.idea/
+*.sln.iml
+
+## Visual Studio / VS Code
+.vs/
+.vscode/
+
+## Divers
+*.log
+Thumbs.db
+.DS_Store
